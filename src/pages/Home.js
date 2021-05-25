@@ -1,23 +1,37 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { useRef } from 'react';
-import { addUser } from '../store/reducers/usersReducer';
+import { useRef, useEffect } from 'react';
+import User from '../components/User';
+import { getUsers } from '../store/actions/usersAction';
+import Loader from '../components/Loader';
+import Filter from '../components/Filter';
 const Home = () => {
-	const state = useSelector((state) => state.users);
+	const { users, loader } = useSelector((state) => state.users);
 	const dispatch = useDispatch();
-	const inputRef = useRef('');
-	console.log(state.users);
-	const storeUser = (e) => {
-		e.preventDefault();
-		dispatch(addUser(inputRef.current.value));
-		inputRef.current.value = '';
-	};
-	return (
-		<form onSubmit={storeUser}>
-			<input type='text' name='' placeholder='Add user...' ref={inputRef} />
-			<br />
-			<br />
-			<input type='submit' value='Add User' />
-		</form>
+	useEffect(() => {
+		dispatch(getUsers());
+	}, []);
+	return !loader ? (
+		<>
+			<Filter />
+			<table className='table table-hover'>
+				<thead>
+					<tr>
+						<th>Sno</th>
+						<th>Name</th>
+						<th>Username</th>
+						<th>Email</th>
+						<th>Details</th>
+					</tr>
+				</thead>
+				<tbody>
+					{users.map((user, index) => (
+						<User key={index} index={index} user={user} />
+					))}
+				</tbody>
+			</table>
+		</>
+	) : (
+		<Loader />
 	);
 };
 export default Home;
